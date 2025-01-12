@@ -1,7 +1,9 @@
 /test.py.bak
 /tutorial2.xpl
 /tutorial2.xpl.bak
-/tutorial3.xpl
+tutorial3.xpl
 
 calculation*
 ipykernel_launcher*
+*.h5
+*.txt
