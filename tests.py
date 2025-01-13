@@ -1,4 +1,3 @@
-import calculations
 import plask
 import pandas as pd
 import json
@@ -64,7 +63,7 @@ for i in range(overwrites.shape[0]):
     for m,potential_modes in m_potential_modes:
         potential_modes = list(potential_modes)
         for mode_i in range(len(potential_modes)):
-            for vmin,vmax in [(v/2,v/2+0.5) for v in range(0,6)]:
+            for vmin,vmax in [(v/2,v/2+0.5) for v in range(0,3)]:
 
                 potential_mode = potential_modes[mode_i]
                 
