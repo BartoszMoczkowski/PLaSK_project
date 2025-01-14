@@ -20,10 +20,15 @@ overwrites : pd.DataFrame = pd.read_excel(xlsx_path)
 overwrites['n_top_dbr'] = pd.to_numeric(overwrites['n_top_dbr'],downcast='integer',errors='coerce')
 overwrites['n_bottom_dbr'] = pd.to_numeric(overwrites['n_bottom_dbr'],downcast='integer',errors='coerce')
 
+n_done = 0
 try:
     print("Loaded Previous")
     with open("test.json",'r') as file:
         results = json.loads(file.read())
+
+    for x in results:
+        if x['id'] > n_done:
+            n_done = int(x["id"])
 except:
     print("Failed to load")
     results = []
@@ -35,8 +40,10 @@ m_list = list(range(100))
 
 start_time = time.time()
 
-for i in range(overwrites.shape[0]):
-            
+for i in range(n_done,overwrites.shape[0]):
+    
+    print(f"CASE : {i}")
+
     unformatted_dict = overwrites.iloc[i].to_dict()
     defs = {x : unformatted_dict[x] for x in unformatted_dict}
     defs['n_top_dbr'] = int(defs['n_top_dbr'])
@@ -59,14 +66,28 @@ for i in range(overwrites.shape[0]):
 
     # m_modes = list_optical_modes(m_potential_modes)
     case_results = []
+    found_modes = []
 
     for m,potential_modes in m_potential_modes:
         potential_modes = list(potential_modes)
         for mode_i in range(len(potential_modes)):
+            
+
+            potential_mode = potential_modes[mode_i]
+            skipable = False
+            for prev_mode in found_modes:
+                if abs(prev_mode-potential_mode) <= 0.2:
+                    skipable = True
+            
+            if skipable:
+                print("Mode already found. Skipping")
+                continue
+            
+            
             for vmin,vmax in [(v/2,v/2+0.5) for v in range(0,3)]:
 
-                potential_mode = potential_modes[mode_i]
                 
+
                 print(m,potential_mode,vmax)
 
 
@@ -86,6 +107,8 @@ for i in range(overwrites.shape[0]):
                     for i in range(len(SOLVER.outWavelength)):
                         lam = SOLVER.outWavelength(i)
                         lams.append(lam)
+                        found_modes.append(lam)
+                        found_modes.append(potential_mode)
 
                     print(f"Found mode m {m} lam {lams} V {V} I {I}")
                     case_results.append({'m' : m,'lam' : lams, 'voltage' : V, 'current' : I})
