@@ -3,15 +3,6 @@ import pandas as pd
 import json
 import time
 import numpy as np
-def load_case(self,overwrites, index : int):
-
-
-            
-    unformatted_dict = overwrites.iloc[index].to_dict()
-    defs = {x : unformatted_dict[x] for x in unformatted_dict}
-    defs['n_top_dbr'] = int(defs['n_top_dbr'])
-    defs['n_bottom_dbr'] = int(defs['n_bottom_dbr'])
-    plask.loadxpl(xpl_path,destination=locals(),defs=defs)
 
 xlsx_path = "test_data.xlsx"
 xpl_path = "tutorial3.xpl"
@@ -19,6 +10,7 @@ overwrites : pd.DataFrame = pd.read_excel(xlsx_path)
 
 overwrites['n_top_dbr'] = pd.to_numeric(overwrites['n_top_dbr'],downcast='integer',errors='coerce')
 overwrites['n_bottom_dbr'] = pd.to_numeric(overwrites['n_bottom_dbr'],downcast='integer',errors='coerce')
+overwrites['mesa'] = pd.to_numeric(overwrites['mesa'],downcast='integer',errors='coerce')
 
 n_done = 0
 try:
@@ -32,17 +24,18 @@ try:
 except:
     print("Failed to load")
     results = []
-
 lam0 = 900
 lamn = 980
 n_mode_space = 1601
 m_list = list(range(100))
 
 start_time = time.time()
-
+skip_list = []
 for i in range(n_done,overwrites.shape[0]):
     
-    print(f"CASE : {i}")
+    if i in skip_list:
+        continue
+    print(f"CASE : {i+1}")
 
     unformatted_dict = overwrites.iloc[i].to_dict()
     defs = {x : unformatted_dict[x] for x in unformatted_dict}
@@ -71,9 +64,15 @@ for i in range(n_done,overwrites.shape[0]):
     for m,potential_modes in m_potential_modes:
         potential_modes = list(potential_modes)
         for mode_i in range(len(potential_modes)):
+            potential_mode = potential_modes[mode_i]
+            try:
+                ko = SOLVER.optical.find_mode(potential_mode,m=m)
+                print(SOLVER.optical.modes[ko])
+            except Exception as e:
+                print(f"m {m} potential_mode {potential_mode} failed {e}")
+                continue
             
 
-            potential_mode = potential_modes[mode_i]
             skipable = False
             for prev_mode in found_modes:
                 if abs(prev_mode-potential_mode) <= 0.2:
@@ -83,8 +82,7 @@ for i in range(n_done,overwrites.shape[0]):
                 print("Mode already found. Skipping")
                 continue
             
-            
-            for vmin,vmax in [(v/2,v/2+0.5) for v in range(0,3)]:
+            for vmin,vmax in [(v/2,v/2+0.5) for v in range(2,10)]:
 
                 
 
@@ -94,6 +92,7 @@ for i in range(n_done,overwrites.shape[0]):
                 SOLVER.optical.lam0 = potential_mode
                 SOLVER.maxlam = (potential_modes+[980])[mode_i+1]
                 SOLVER.lpm = m
+                # SOLVER.vmin = vmin
                 SOLVER.vmax = vmax
                 #if compute fails then that means that the required voltage is too high
                 # figure out how to get the max voltage reacheds

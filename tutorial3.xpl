@@ -95,7 +95,7 @@
   <meta name="SOLVER" solver="ThresholdSearchCyl" lib="shockley">
     <geometry electrical="GeoE" optical="GeoO" thermal="GeoT"/>
     <mesh electrical="default" optical="optical" thermal="default"/>
-    <optical dlam="0.01" lam0="980." maxlam="980." vat="0"/>
+    <optical dlam="0.01" lam0="977." maxlam="980." vat="0"/>
     <root bcond="0" vmax="1.6" vmin="1.4"/>
     <voltage>
       <condition value="{L_boundry_V}">
