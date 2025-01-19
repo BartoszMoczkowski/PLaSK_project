@@ -30,7 +30,7 @@ n_mode_space = 1601
 m_list = list(range(100))
 
 start_time = time.time()
-skip_list = []
+skip_list = [8,13,14]
 for i in range(n_done,overwrites.shape[0]):
     
     if i in skip_list:
@@ -92,7 +92,7 @@ for i in range(n_done,overwrites.shape[0]):
                 SOLVER.optical.lam0 = potential_mode
                 SOLVER.maxlam = (potential_modes+[980])[mode_i+1]
                 SOLVER.lpm = m
-                # SOLVER.vmin = vmin
+                SOLVER.vmin = vmin
                 SOLVER.vmax = vmax
                 #if compute fails then that means that the required voltage is too high
                 # figure out how to get the max voltage reacheds
